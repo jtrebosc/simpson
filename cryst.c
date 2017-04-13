@@ -112,7 +112,7 @@ Cryst * read_crystfile(char* crystname, int from, int to)
 
   strcpy(fname,crystname);
 
-#ifdef UNIX
+#if defined(UNIX) && 0 /* appears to be obsolete code */
   if (name[0] == '~') {
     char* p=getenv("HOME");
     if (p != NULL) {

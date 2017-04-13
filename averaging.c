@@ -54,7 +54,8 @@ void set_ave_val_type(Ave_elem *ave, int i, char *str)
 void read_averaging_file(Tcl_Interp *interp, Sim_info *sim, Ave_elem **aveptr, double **weightptr, int *Npar, int *Nval)
 {
 	FILE *fp;
-	char fname[256], name[256], line[MAXLINELEN], **parsv, buf[8], *sptr;
+	char fname[256], name[256], line[MAXLINELEN], buf[8], *sptr;
+	const char **parsv;
 	Tcl_Obj *obj, **objv;
 	int i, j, k, N, N_from, N_to, Nlines;
 	Ave_elem *ave;

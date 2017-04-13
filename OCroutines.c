@@ -241,7 +241,7 @@ void test_pulseq_for_acqOC_prop(Tcl_Interp *interp)
      
   //printf("test_pulseq_for_acqOC_prop:\n%s\n---\n",buf);
 
-  res = Tcl_GetStringResult(interp);
+  res = (char *)Tcl_GetStringResult(interp);
   //printf("%s\n///\n",res);
 
   lin = my_strtok_r(res,"\n",&chptr);
@@ -2218,7 +2218,7 @@ void gradOC_prop_2(Sim_info *sim, Sim_wsp *wsp, int ud)
       e = d;
       w_lo = z -x_l;
       w_up = x_r -z;
-      tolerance = EPS*abs(z);
+      tolerance = EPS*labs((long int)z);
       p = 0.0;
       q = 0.0;
       r = 0.0;
