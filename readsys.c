@@ -29,7 +29,7 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
-#include <tcl.h>c
+#include <tcl.h>
 #include <assert.h>
 #include "matrix.h"
 #include "spinsys.h"
@@ -129,7 +129,7 @@ void readsys(Tcl_Interp* interp,Sim_info* s)
   SpinSys* ss;
   int ver, Nnuc, Nchan, Nelm, NN, i, j, n1, n2, Jiso, Jani;
   int Nshift=0, Nj=0, Ndip=0, Nquad=0, Nmix=0, Ngten=0, Nhf=0, Naniso;
-  char *buf, **names, **spins;
+  const char *buf, **names, **spins;
   Tcl_Obj **vals;
   Shift *csptr;
   Dipole *ddptr;

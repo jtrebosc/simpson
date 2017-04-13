@@ -31,5 +31,6 @@ void _pulse_shapedOC_2(Sim_info *sim, Sim_wsp *wsp, int Nelem, int *OCchanmap, i
 void _pulse_shapedOCprops_2(Sim_info *sim, Sim_wsp *wsp, int Nelem, int *OCchanmap, int *mask, double duration);
 
 void test_print_codes(Sim_wsp *wsp);
+void OCpar_destroy(void);
 
 #endif

@@ -196,7 +196,7 @@ mat_complx* get_matrix_2(Sim_info *sim, Sim_wsp *wsp,char* name,char* list)
   cm_zero(m);
 
   if (!strcmp(name,"notelements") || !strcmp(name,"elements")) {
-      char **list1,**list2;
+      const char **list1,**list2;
       int i,nlist1,nlist2,val1,val2;
       
       if (Tcl_SplitList(interp,list,&nlist1,&list1) != TCL_OK)
@@ -243,7 +243,7 @@ mat_complx* get_matrix_2(Sim_info *sim, Sim_wsp *wsp,char* name,char* list)
       Tcl_Free((char *) list1);
   } else if (!strcmp(name,"totalcoherence")) {
     int coh[MAXSPINS+1];
-    char **list1;
+    const char **list1;
     int nlist1,i,j,k;    
     mat_complx * Q;
     
@@ -276,7 +276,7 @@ mat_complx* get_matrix_2(Sim_info *sim, Sim_wsp *wsp,char* name,char* list)
     Tcl_Free((char *) list1);
     free_complx_matrix(Q);
   } else if (!strcmp(name,"coherence")) {
-    char **list1,**list2;
+    const char **list1,**list2;
     int i,j,nlist1,nlist2;      
     double coh[MAXSPINS+1];
     mat_complx *tmp;
@@ -317,7 +317,7 @@ mat_complx* get_matrix_2(Sim_info *sim, Sim_wsp *wsp,char* name,char* list)
     Tcl_Free((char *) list1);
     
   } else if (!strcmp(name,"list")) {
-    char **list1,**list2,**list3;
+    const char **list1,**list2,**list3;
     int i,j,nlist1,nlist2,nlist3;
 
     if (Tcl_SplitList(interp,list,&nlist1,&list1) != TCL_OK) {

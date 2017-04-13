@@ -21,8 +21,10 @@
 #include <Accelerate/Accelerate.h>
 #elif defined(GSL)
 #include <gsl/gsl_cblas.h>
+#include "lapacke/lapacke.h"
 #else
 #include "cblas.h"
+#include "lapacke/lapacke.h"
 #endif
 #include "cm.h"
 #include "blockdiag.h"

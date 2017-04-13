@@ -1377,7 +1377,7 @@ void store_sim_pointers(Tcl_Interp* interp, Sim_info* sim, Sim_wsp * wsp)
 
 void read_sim_pointers(Tcl_Interp* interp, Sim_info **sim, Sim_wsp **wsp)
 {
-	char *buf;
+	const char *buf;
 
 	buf = Tcl_GetVar(interp,"__sim_info_ptr",TCL_GLOBAL_ONLY);
 	if (buf == NULL) {
