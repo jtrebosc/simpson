@@ -16,7 +16,7 @@ find_package (LAPACK REQUIRED)
 find_package (TCL REQUIRED)
 find_package (Threads REQUIRED)
 find_package (GSL)
-#find_package (MPI)
+find_package (MPI)
 
 #set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Werror")
 
@@ -39,7 +39,7 @@ ExternalProject_Add (nfft3
 ExternalProject_Get_Property (nfft3 install_dir)
 set (NFFT3_INCLUDE_DIRS "${install_dir}/include")
 set (NFFT3_LIBRARIES "${install_dir}/lib/libnfft3.a")
-include_directories ("${NFFT3_INCLUDE_DIRS}")
+include_directories ("${NFFT3_INCLUDE_DIRS}" ${TCL_INCLUDE_PATH})
 
 # GSL
 if (GSL_FOUND)
@@ -95,13 +95,13 @@ add_executable (SIMPSON
   tclutil.c
   wigner.c)
 
-target_link_libraries (SIMPSON m )
-target_link_libraries (SIMPSON ${TCL_LIBRARY})
-target_link_libraries (SIMPSON ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
-target_link_libraries (SIMPSON ${GSL_LIBRARY} ${GSL_CBLAS_LIBRARY})
-target_link_libraries (SIMPSON ${FFTW3_LIBRARIES})
 target_link_libraries (SIMPSON ${NFFT3_LIBRARIES})
+target_link_libraries (SIMPSON ${TCL_LIBRARY})
+target_link_libraries (SIMPSON ${FFTW3_LIBRARIES})
+target_link_libraries (SIMPSON ${GSL_LIBRARY} ${GSL_CBLAS_LIBRARY})
+target_link_libraries (SIMPSON ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
 target_link_libraries (SIMPSON ${MPI_LIBRARIES})
+target_link_libraries (SIMPSON m )
 add_dependencies (SIMPSON nfft3)
 if (THREADS_HAVE_PTHREAD_ARG)
   target_compile_options (PUBLIC SIMPSON "-pthread")
