@@ -2828,6 +2828,3 @@ Tcl_CreateObjCommand(interp,"test_function",(Tcl_ObjCmdProc *)tclTestFunc,(Clien
 
 }
 
-
-
-

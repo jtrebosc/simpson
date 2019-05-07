@@ -5,8 +5,8 @@ cmake_minimum_required (VERSION 2.6.8)
 
 # default build mode
 if (NOT CMAKE_BUILD_TYPE)
-  set (CMAKE_BUILD_TYPE "RelWithDebInfo")
-  message ("CMake build mode: RelWithDebInfo")
+  set (CMAKE_BUILD_TYPE "Release")
+  message ("CMake build mode: Release")
 endif (NOT CMAKE_BUILD_TYPE)
 
 project (SIMPSON C)
