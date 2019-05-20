@@ -11,12 +11,52 @@ endif (NOT CMAKE_BUILD_TYPE)
 
 project (SIMPSON C)
 
+# add vendor option to switch to intel MKL, OpenBLAS, atlas or GSL
+if(NOT DEFINED ENV{PREFERED_BLAS}  )
+ message(STATUS "No PREFERED_BLAS environment variable defined\n\
+ You can set PREFERED_BLAS to intelMKL, OPENBLAS, GSL or ATLAS\n\
+ cmake will select it if it founds it")
+ set(PREFERED_BLAS _ )
+else(NOT DEFINED ENV{PREFERED_BLAS}  )
+ set(PREFERED_BLAS $ENV{PREFERED_BLAS})
+endif(NOT DEFINED ENV{PREFERED_BLAS}  )
+
+if (${PREFERED_BLAS} STREQUAL "intelMKL")
+set (BLA_VENDOR Intel10_64lp)
+message(STATUS "looking specifically for intelMKL" )
 find_package (BLAS REQUIRED)
+elseif (${PREFERED_BLAS} STREQUAL "ATLAS")
+message(STATUS "looking specifically for ATLAS" )
+set (BLA_VENDOR "ATLAS")
+find_package (BLAS REQUIRED)
+elseif (${PREFERED_BLAS} STREQUAL "OPENBLAS")
+message(STATUS "looking specifically for OPENBLAS" )
+set (BLA_VENDOR "OpenBLAS")
+find_package (BLAS REQUIRED)
+elseif (${PREFERED_BLAS} STREQUAL "GSL")
+message(STATUS "looking specifically for GSL" )
+find_package (GSL)
+else(${PREFERED_BLAS} STREQUAL "intelMKL")
+find_package (BLAS REQUIRED)
+endif(${PREFERED_BLAS} STREQUAL "intelMKL")
+
+if (BLAS_FOUND)
+message(STATUS "blas libraries : ${BLAS_LIBRARIES}") 
+endif (BLAS_FOUND)
+
 find_package (LAPACK REQUIRED)
+if (LAPACK_FOUND)
+message(STATUS "lapack libraries : ${LAPACK_LIBRARIES}") 
+endif (LAPACK_FOUND)
+
+
 find_package (TCL REQUIRED)
 find_package (Threads REQUIRED)
-find_package (GSL)
+if (ENV{ENABLE_MPI})
 find_package (MPI)
+endif (ENV{ENABLE_MPI})
+
+#message(STATUS BLAS_LIBRARIES=${BLAS_LIBRARIES})
 
 #set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Werror")
 
@@ -39,16 +79,29 @@ ExternalProject_Add (nfft3
 ExternalProject_Get_Property (nfft3 install_dir)
 set (NFFT3_INCLUDE_DIRS "${install_dir}/include")
 set (NFFT3_LIBRARIES "${install_dir}/lib/libnfft3.a")
-include_directories ("${NFFT3_INCLUDE_DIRS}" ${TCL_INCLUDE_PATH})
+
+include_directories (${NFFT3_INCLUDE_DIRS})
+include_directories (${TCL_INCLUDE_PATH})
+
+MESSAGE("blas libs are :  ${BLAS_LIBRARIES}")
+string(TOLOWER ${BLAS_LIBRARIES} SEARCH_OPENBLAS)
+string(REGEX MATCH openblas FOUND_OPENBLAS ${SEARCH_OPENBLAS} )
+if (FOUND_OPENBLAS)
+# with openblas one calls a function that 
+# sets OPENBLAS_NUM_THREADS through an array entry
+  MESSAGE("adding -DOPENBLAS definition")
+  add_definitions (-DOPENBLAS)
+endif (FOUND_OPENBLAS)
 
 # GSL
 if (GSL_FOUND)
+  MESSAGE("adding -DGSL definition")
   add_definitions (-DGSL)
-endif ()
+endif (GSL_FOUND)
 if (MPI_FOUND)
   include_directories (${MPI_C_INCLUDE_PATH})
   add_definitions (-DMPI)
-endif ()
+endif (MPI_FOUND)
 
 if (UNIX)
   add_definitions (-DUNIX)
@@ -98,14 +151,21 @@ add_executable (SIMPSON
 target_link_libraries (SIMPSON ${NFFT3_LIBRARIES})
 target_link_libraries (SIMPSON ${TCL_LIBRARY})
 target_link_libraries (SIMPSON ${FFTW3_LIBRARIES})
+if (GSL_FOUND)
 target_link_libraries (SIMPSON ${GSL_LIBRARY} ${GSL_CBLAS_LIBRARY})
+endif ()
 target_link_libraries (SIMPSON ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+if (MPI_FOUND)
 target_link_libraries (SIMPSON ${MPI_LIBRARIES})
+endif ()
 target_link_libraries (SIMPSON m )
+
 add_dependencies (SIMPSON nfft3)
+
 if (THREADS_HAVE_PTHREAD_ARG)
   target_compile_options (PUBLIC SIMPSON "-pthread")
 endif()
+
 if (CMAKE_THREAD_LIBS_INIT)
   target_link_libraries (SIMPSON "${CMAKE_THREAD_LIBS_INIT}")
 endif()

@@ -173,6 +173,14 @@ int main (int argc,char *argv[])
 	   SPARSE_TOL = TclGetDouble(interp,"par","sparse_tol",0,1.0e-6);
 	   /* read par(num_cores) and start threads */
 	   par_num_cores = TclGetInt(interp,"par","num_cores",0,0);
+#ifdef OPENBLAS
+// set only single threaded openblas: seems to be much better perf for small matrices
+// one should check for a par variable to enable or disable it
+// same as num_cores option
+           int par_openblas_num_threads;
+	   par_openblas_num_threads = TclGetInt(interp,"par","num_openblas_num_threads",0,1);
+           openblas_set_num_threads(par_openblas_num_threads);
+#endif
 #ifdef WIN32
 		SYSTEM_INFO sysinfo;
 		GetSystemInfo( &sysinfo );
