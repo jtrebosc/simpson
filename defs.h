@@ -92,10 +92,12 @@ typedef struct _glob_info_type {
 	char *inputfile;
 } glob_info_type;
 
+#ifdef DEBUG
+#define DEBUGPRINT printf
+#else
 #define DEBUGPRINT noprintf
-
+#endif
 extern void noprintf(const char* format, ...);
-
 
 #ifdef __cplusplus
 }

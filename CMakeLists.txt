@@ -103,6 +103,10 @@ if (MPI_FOUND)
   add_definitions (-DMPI)
 endif (MPI_FOUND)
 
+if (DEBUG)
+add_definitions (-DDEBUG)
+endif (DEBUG)
+
 if (UNIX)
   add_definitions (-DUNIX)
 endif (UNIX)
