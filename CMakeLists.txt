@@ -11,7 +11,51 @@ endif (NOT CMAKE_BUILD_TYPE)
 
 project (SIMPSON C)
 
-# add vendor option to switch to intel MKL, OpenBLAS, atlas or GSL
+#set name of executable 
+SET(SIMPSON_EXEC simpson)
+# lists source .c files
+SET(SRC_FILES_C
+  allocation.c
+  auxmath.c
+  averaging.c
+  B0inhom.c
+  blockdiag.c
+  cm.c
+  complx.c
+  cryst.c
+  crystdat.c
+  distortions.c
+  fft.c
+  fidcalc.c
+  ftools.c
+  ham.c
+  iodata.c
+  isotopes.c
+  lbfgs.c
+  main.c
+  matrix.c
+  OCroutines.c
+  pthread_barrier_mac.c
+  pulse.c
+  readsys.c
+  relax.c
+  rfprof.c
+  rfshapes.c
+  sim.c
+  simpson.c
+  spinach.c
+  spinsys.c
+  wigner.c
+  tclutil.c
+  tclcode.c
+)
+
+#lists .tcl source files used to generate tclcode.c
+SET(SRC_FILES_TCL
+simpson.tcl ftools.tcl misc.tcl rfshapes.tcl relax.tcl slave.tcl 
+)
+
+# add vendor option to switch between intel MKL, OpenBLAS, atlas or GSL
 if(NOT DEFINED ENV{PREFERED_BLAS}  )
  message(STATUS "No PREFERED_BLAS environment variable defined\n\
  You can set PREFERED_BLAS to intelMKL, OPENBLAS, GSL or ATLAS\n\
@@ -63,7 +107,6 @@ endif (ENV{ENABLE_MPI})
 # fftw3
 find_library (FFTW3_LIBRARIES fftw3)
 find_path (FFTW3_INCLUDE_DIRS "fftw3.h" PATH_SUFFIXES "fftw3")
-include_directories ("${FFTW3_INCLUDE_DIRS}")
 get_filename_component (FFTW3_LIB_DIR "${FFTW3_LIBRARIES}" DIRECTORY)
 
 # nfft3
@@ -114,62 +157,43 @@ if (WIN32)
   add_definitions (-DWIN32)
 endif (WIN32)
 
+include_directories ("${FFTW3_INCLUDE_DIRS}")
+include_directories (${NFFT3_INCLUDE_DIRS})
+include_directories (${TCL_INCLUDE_PATH})
+
 #
 # Simpson executable
 #
-add_executable (SIMPSON
-  allocation.c
-  auxmath.c
-  averaging.c
-  B0inhom.c
-  blockdiag.c
-  cm.c
-  complx.c
-  cryst.c
-  crystdat.c
-  distortions.c
-  fft.c
-  fidcalc.c
-  ftools.c
-  ham.c
-  iodata.c
-  isotopes.c
-  lbfgs.c
-  main.c
-  matrix.c
-  OCroutines.c
-  pthread_barrier_mac.c
-  pulse.c
-  readsys.c
-  relax.c
-  rfprof.c
-  rfshapes.c
-  sim.c
-  simpson.c
-  spinach.c
-  spinsys.c
-  tclcode.c
-  tclutil.c
-  wigner.c)
+ADD_EXECUTABLE (${SIMPSON_EXEC}
+${SRC_FILES_C}
+)
 
-target_link_libraries (SIMPSON ${NFFT3_LIBRARIES})
-target_link_libraries (SIMPSON ${TCL_LIBRARY})
-target_link_libraries (SIMPSON ${FFTW3_LIBRARIES})
+# generate tclcode.c from .tcl files 
+add_custom_command(OUTPUT ${PROJECT_SOURCE_DIR}/tclcode.c
+COMMAND bash -c "./zt_make_tclcode.sh"
+DEPENDS ${SRC_FILES_TCL}
+WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+COMMENT "Generating tclcode.c from ${SRC_FILES_TCL}"
+)
+
+add_dependencies (${SIMPSON_EXEC} nfft3)
+
+target_link_libraries (${SIMPSON_EXEC} ${NFFT3_LIBRARIES})
+target_link_libraries (${SIMPSON_EXEC} ${TCL_LIBRARY})
+target_link_libraries (${SIMPSON_EXEC} ${FFTW3_LIBRARIES})
 if (GSL_FOUND)
-target_link_libraries (SIMPSON ${GSL_LIBRARY} ${GSL_CBLAS_LIBRARY})
+target_link_libraries (${SIMPSON_EXEC} ${GSL_LIBRARY} ${GSL_CBLAS_LIBRARY})
 endif ()
-target_link_libraries (SIMPSON ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+target_link_libraries (${SIMPSON_EXEC} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
 if (MPI_FOUND)
-target_link_libraries (SIMPSON ${MPI_LIBRARIES})
+target_link_libraries (${SIMPSON_EXEC} ${MPI_LIBRARIES})
 endif ()
-target_link_libraries (SIMPSON m )
-
-add_dependencies (SIMPSON nfft3)
+target_link_libraries (${SIMPSON_EXEC} m )
 
 if (THREADS_HAVE_PTHREAD_ARG)
   target_compile_options (PUBLIC SIMPSON "-pthread")
 endif()
 
 if (CMAKE_THREAD_LIBS_INIT)
-  target_link_libraries (SIMPSON "${CMAKE_THREAD_LIBS_INIT}")
+  target_link_libraries (${SIMPSON_EXEC} "${CMAKE_THREAD_LIBS_INIT}")
 endif()
