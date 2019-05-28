@@ -11,8 +11,9 @@ endif (NOT CMAKE_BUILD_TYPE)
 
 project (SIMPSON C)
 
+set(EXEC_POSTFIX "" CACHE STRING "adds a postfix to generated executable name")
 #set name of executable 
-SET(SIMPSON_EXEC simpson)
+SET(SIMPSON_EXEC simpson${EXEC_POSTFIX})
 # lists source .c files
 SET(SRC_FILES_C
   allocation.c
@@ -55,40 +56,56 @@ SET(SRC_FILES_TCL
 simpson.tcl ftools.tcl misc.tcl rfshapes.tcl relax.tcl slave.tcl 
 )
 
+option(PREFERED_OPENBLAS "Prefered blas library is OpenBLAS" FALSE)
+option(PREFERED_MKL "Prefered blas library is intel MKL" FALSE)
+option(PREFERED_GSL "Prefered blas library is GSL" FALSE)
+option(PREFERED_ATLAS "Prefered blas library is ATLAS" FALSE)
 # add vendor option to switch between intel MKL, OpenBLAS, atlas or GSL
-if(NOT DEFINED ENV{PREFERED_BLAS}  )
- message(STATUS "No PREFERED_BLAS environment variable defined\n\
- You can set PREFERED_BLAS to intelMKL, OPENBLAS, GSL or ATLAS\n\
- cmake will select it if it founds it")
- set(PREFERED_BLAS _ )
-else(NOT DEFINED ENV{PREFERED_BLAS}  )
- set(PREFERED_BLAS $ENV{PREFERED_BLAS})
-endif(NOT DEFINED ENV{PREFERED_BLAS}  )
 
-if (${PREFERED_BLAS} STREQUAL "intelMKL")
-set (BLA_VENDOR Intel10_64lp)
+if (PREFERED_MKL)
 message(STATUS "looking specifically for intelMKL" )
+set (BLA_VENDOR Intel10_64lp)
 find_package (BLAS REQUIRED)
-elseif (${PREFERED_BLAS} STREQUAL "ATLAS")
+endif (PREFERED_MKL)
+
+if (PREFERED_ATLAS)
 message(STATUS "looking specifically for ATLAS" )
 set (BLA_VENDOR "ATLAS")
+find_package (LAPACK REQUIRED)
 find_package (BLAS REQUIRED)
-elseif (${PREFERED_BLAS} STREQUAL "OPENBLAS")
+endif (PREFERED_ATLAS)
+
+if (PREFERED_OPENBLAS)
 message(STATUS "looking specifically for OPENBLAS" )
 set (BLA_VENDOR "OpenBLAS")
+find_package (LAPACK REQUIRED)
 find_package (BLAS REQUIRED)
-elseif (${PREFERED_BLAS} STREQUAL "GSL")
+endif (PREFERED_OPENBLAS)
+
+if (PREFERED_GSL)
 message(STATUS "looking specifically for GSL" )
 find_package (GSL)
-else(${PREFERED_BLAS} STREQUAL "intelMKL")
+ if (GSL_FOUND)
+  MESSAGE("adding -DGSL definition")
+  add_definitions (-DGSL)
+find_package (LAPACK REQUIRED)
+  set(BLAS_LIBRARIES  ${GSL_LIBRARY} ${GSL_CBLAS_LIBRARY})
+  set(BLAS_FOUND TRUE)
+ endif (GSL_FOUND)
+endif (PREFERED_GSL)
+
+if( NOT (PREFERED_OPENBLAS OR PREFERED_OPENBLAS OR PREFERED_OPENBLAS OR PREFERED_ATLAS OR PREFERED_GSL))
+message("None of BLAS option active")
 find_package (BLAS REQUIRED)
-endif(${PREFERED_BLAS} STREQUAL "intelMKL")
+endif( NOT (PREFERED_OPENBLAS OR PREFERED_OPENBLAS OR PREFERED_OPENBLAS OR PREFERED_ATLAS OR PREFERED_GSL))
+
 
 if (BLAS_FOUND)
-message(STATUS "blas libraries : ${BLAS_LIBRARIES}") 
+message("blas libraries: ${BLAS_LIBRARIES}") 
+string(TOLOWER "${BLAS_LIBRARIES}${LAPACK_LIBRARIES}" SEARCH_OPENBLAS)
+string(REGEX MATCH openblas FOUND_OPENBLAS "${SEARCH_OPENBLAS}" )
 endif (BLAS_FOUND)
 
-find_package (LAPACK REQUIRED)
 if (LAPACK_FOUND)
 message(STATUS "lapack libraries : ${LAPACK_LIBRARIES}") 
 endif (LAPACK_FOUND)
@@ -96,9 +113,11 @@ endif (LAPACK_FOUND)
 
 find_package (TCL REQUIRED)
 find_package (Threads REQUIRED)
-if (ENV{ENABLE_MPI})
+
+option(ENABLE_MPI "set to activate MPI" FALSE )
+if (ENABLE_MPI)
 find_package (MPI)
-endif (ENV{ENABLE_MPI})
+endif (ENABLE_MPI)
 
 #message(STATUS BLAS_LIBRARIES=${BLAS_LIBRARIES})
 
@@ -132,20 +151,16 @@ string(REGEX MATCH openblas FOUND_OPENBLAS ${SEARCH_OPENBLAS} )
 if (FOUND_OPENBLAS)
 # with openblas one calls a function that 
 # sets OPENBLAS_NUM_THREADS through an array entry
-  MESSAGE("adding -DOPENBLAS definition")
+  MESSAGE("OPENBLAS found so adding -DOPENBLAS definition to limit number of threads to 1")
   add_definitions (-DOPENBLAS)
 endif (FOUND_OPENBLAS)
 
-# GSL
-if (GSL_FOUND)
-  MESSAGE("adding -DGSL definition")
-  add_definitions (-DGSL)
-endif (GSL_FOUND)
 if (MPI_FOUND)
   include_directories (${MPI_C_INCLUDE_PATH})
   add_definitions (-DMPI)
 endif (MPI_FOUND)
 
+option(DEBUG "Debug option activated verbose simpson output" FALSE)
 if (DEBUG)
 add_definitions (-DDEBUG)
 endif (DEBUG)
@@ -181,12 +196,10 @@ add_dependencies (${SIMPSON_EXEC} nfft3)
 target_link_libraries (${SIMPSON_EXEC} ${NFFT3_LIBRARIES})
 target_link_libraries (${SIMPSON_EXEC} ${TCL_LIBRARY})
 target_link_libraries (${SIMPSON_EXEC} ${FFTW3_LIBRARIES})
-if (GSL_FOUND)
-target_link_libraries (${SIMPSON_EXEC} ${GSL_LIBRARY} ${GSL_CBLAS_LIBRARY})
-endif ()
 target_link_libraries (${SIMPSON_EXEC} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+
 if (MPI_FOUND)
-target_link_libraries (${SIMPSON_EXEC} ${MPI_LIBRARIES})
+  target_link_libraries (${SIMPSON_EXEC} ${MPI_LIBRARIES})
 endif ()
 target_link_libraries (${SIMPSON_EXEC} m )
 
@@ -197,3 +210,4 @@ endif()
 if (CMAKE_THREAD_LIBS_INIT)
   target_link_libraries (${SIMPSON_EXEC} "${CMAKE_THREAD_LIBS_INIT}")
 endif()
+message("exec file will be ${SIMPSON_EXEC} ")
