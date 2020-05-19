@@ -147,8 +147,15 @@ int main (int argc,char *argv[])
 		   exit(1);
 	   }
 
-	   /* set par(name) variable */
+	   /* set par(name) and par(pathname) variable */
+           
+	   if (Tcl_Eval(interp, "set par(pathname) [file dirname $argv0] ") != TCL_OK) {
+	   	   fprintf(stderr,"Error when setting 'par(pathname)' variable from argument '%s':\n%s\n",argv[1],Tcl_GetStringResult(interp));
+	   }
 	   if (Tcl_Eval(interp, "set par(name) [file rootname [lindex [file split $argv0] end]]") != TCL_OK) {
+	   	   fprintf(stderr,"Error when setting 'par(name)' variable from argument '%s':\n%s\n",argv[1],Tcl_GetStringResult(interp));
+	   }
+	   if (Tcl_Eval(interp, "set par(fullname) [file rootname $argv0]") != TCL_OK) {
 	   	   fprintf(stderr,"Error when setting 'par(name)' variable from argument '%s':\n%s\n",argv[1],Tcl_GetStringResult(interp));
 	   }
 #ifdef MPI
