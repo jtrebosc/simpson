@@ -1829,7 +1829,7 @@ int tclStore(ClientData data,Tcl_Interp* interp, int argc, Tcl_Obj *argv[])
      buf = Tcl_GetString(argv[2]);
      if ( !strcmp(buf,"list") || !strcmp(buf,"elements") || !strcmp(buf,"notelements") ) {
         m = get_matrix_2(sim,wsp,buf,Tcl_GetString(argv[3]));
-	if (!m) return TclError(interp,"store could not set propagator form %s",buf);
+	if (!m) return TclError(interp,"store could not set propagator from %s",buf);
      } else {
         return TclError(interp,"store called with wrong argument %s",buf);
      }
