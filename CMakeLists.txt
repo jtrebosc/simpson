@@ -128,12 +128,12 @@ find_library (FFTW3_LIBRARIES fftw3)
 find_path (FFTW3_INCLUDE_DIRS "fftw3.h" PATH_SUFFIXES "fftw3")
 get_filename_component (FFTW3_LIB_DIR "${FFTW3_LIBRARIES}" DIRECTORY)
 
-# nfft3
+# nfft3 https://github.com/NFFT/nfft/releases/download/3.5.2/nfft-3.5.2.tar.gz
 include (ExternalProject)
 ExternalProject_Add (nfft3
   PREFIX nfft3
-  URL https://www-user.tu-chemnitz.de/~potts/nfft/download/nfft-3.3.2.tar.gz
-  URL_HASH MD5=550737c06f4d6ea6c156800169d8f0d9
+  URL https://www-user.tu-chemnitz.de/~potts/nfft/download/nfft-3.5.2.tar.gz
+  URL_HASH MD5=bf037f03503f28214ed27223d232cee5
   CONFIGURE_COMMAND <SOURCE_DIR>/configure --prefix=<INSTALL_DIR> --with-fftw3-libdir=${FFTW3_LIB_DIR} --enable-all
   BUILD_COMMAND make
   INSTALL_COMMAND make install
