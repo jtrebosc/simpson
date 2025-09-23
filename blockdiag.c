@@ -4141,7 +4141,7 @@ blk_mat_complx * blk_cm_diag(blk_mat_complx *Ud)
 			switch (bm->type) {
 			case MAT_DENSE:
 				create_sqmat_complx(tm,NN,MAT_DENSE,0,Ud->basis);
-				zgeev_("N","V",&NN,bm->data,&NN,dmpos,NULL,&ione,tm->data,&NN,wsp,&lwsp,rwork,&info);
+				zgeev_("N","V",&NN,bm->data,&NN,dmpos,NULL,&ione,tm->data,&NN,wsp,&lwsp,rwork,&info,1,1);
 				if ( info != 0) {
 					fprintf(stderr,"blk_cm_diag error: diagonalization failed for submatrix %d with the code '%d'\n", i, info);
 				    exit(1);
@@ -4157,7 +4157,7 @@ blk_mat_complx * blk_cm_diag(blk_mat_complx *Ud)
 						"convert it from sparse to full format. The whole operation may take long time...\n",i,NN);
 				cm_dense(bm);
 				create_sqmat_complx(tm,NN,MAT_DENSE,0,Ud->basis);
-				zgeev_("N","V",&NN,bm->data,&NN,dmpos,NULL,&ione,tm->data,&NN,wsp,&lwsp,rwork,&info);
+				zgeev_("N","V",&NN,bm->data,&NN,dmpos,NULL,&ione,tm->data,&NN,wsp,&lwsp,rwork,&info,1,1);
 				if ( info != 0) {
 					fprintf(stderr,"blk_cm_diag error: diagonalization failed for submatrix %d with the code '%d'\n", i, info);
 				    exit(1);
@@ -4252,7 +4252,7 @@ blk_mat_complx * blk_cm_diag_partly(blk_mat_complx *Ud)
 			case MAT_DENSE: {
 				create_sqmat_complx(tm,NN,MAT_DENSE,0,Ud->basis);
 				mat_complx *ud = complx_matrix(NN,NN,MAT_DENSE_DIAG,0,Ud->basis);
-				zgeev_("N","V",&NN,bm->data,&NN,ud->data,NULL,&ione,tm->data,&NN,wsp,&lwsp,rwork,&info);
+				zgeev_("N","V",&NN,bm->data,&NN,ud->data,NULL,&ione,tm->data,&NN,wsp,&lwsp,rwork,&info,1,1);
 				if ( info != 0) {
 					fprintf(stderr,"blk_cm_diag error: diagonalization failed for submatrix %d with the code '%d'\n", i, info);
 				    exit(1);
@@ -4269,7 +4269,7 @@ blk_mat_complx * blk_cm_diag_partly(blk_mat_complx *Ud)
 				cm_dense(bm);
 				create_sqmat_complx(tm,NN,MAT_DENSE,0,Ud->basis);
 				mat_complx *ud = complx_matrix(NN,NN,MAT_DENSE_DIAG,0,Ud->basis);
-				zgeev_("N","V",&NN,bm->data,&NN,ud->data,NULL,&ione,tm->data,&NN,wsp,&lwsp,rwork,&info);
+				zgeev_("N","V",&NN,bm->data,&NN,ud->data,NULL,&ione,tm->data,&NN,wsp,&lwsp,rwork,&info,1,1);
 				if ( info != 0) {
 					fprintf(stderr,"blk_cm_diag error: diagonalization failed for submatrix %d with the code '%d'\n", i, info);
 				    exit(1);
@@ -4425,8 +4425,8 @@ blk_mat_complx * blk_cm_diag_sort(blk_mat_complx *Ud)
 			case MAT_DENSE:
 				//cm_print(bm,"Propagator before");
 				create_sqmat_complx(tm,NN,MAT_DENSE,0,Ud->basis);
-				//zgeev_("N","V",&NN,bm->data,&NN,dmpos,NULL,&ione,tm->data,&NN,wsp,&lwsp,rwork,&info);
-				zgeev_("N","V",&NN,bm->data,&NN,eigs,NULL,&ione,eigvecs,&NN,wsp,&lwsp,rwork,&info);
+				//zgeev_("N","V",&NN,bm->data,&NN,dmpos,NULL,&ione,tm->data,&NN,wsp,&lwsp,rwork,&info,1,1);
+				zgeev_("N","V",&NN,bm->data,&NN,eigs,NULL,&ione,eigvecs,&NN,wsp,&lwsp,rwork,&info,1,1);
 				if ( info != 0) {
 					fprintf(stderr,"blk_cm_diag error: diagonalization failed for submatrix %d with the code '%d'\n", i, info);
 				    exit(1);
@@ -4456,8 +4456,8 @@ blk_mat_complx * blk_cm_diag_sort(blk_mat_complx *Ud)
 						"convert it from sparse to full format. The whole operation may take long time...\n",i,NN);
 				cm_dense(bm);
 				create_sqmat_complx(tm,NN,MAT_DENSE,0,Ud->basis);
-				//zgeev_("N","V",&NN,bm->data,&NN,dmpos,NULL,&ione,tm->data,&NN,wsp,&lwsp,rwork,&info);
-				zgeev_("N","V",&NN,bm->data,&NN,eigs,NULL,&ione,eigvecs,&NN,wsp,&lwsp,rwork,&info);
+				//zgeev_("N","V",&NN,bm->data,&NN,dmpos,NULL,&ione,tm->data,&NN,wsp,&lwsp,rwork,&info,1,1);
+				zgeev_("N","V",&NN,bm->data,&NN,eigs,NULL,&ione,eigvecs,&NN,wsp,&lwsp,rwork,&info,1,1);
 				if ( info != 0) {
 					fprintf(stderr,"blk_cm_diag error: diagonalization failed for submatrix %d with the code '%d'\n", i, info);
 				    exit(1);

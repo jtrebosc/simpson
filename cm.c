@@ -25,7 +25,7 @@
 #if !defined(INTEL_MKL) && !defined(__APPLE__)
 	void zgeev_(const char *jobl, const char *jobr, const int *d1, void *data,const int *d2,
 			void *eigs, void *vl, const int *dvl,void *vr, const int *dvr, void *wsp,
-			const int *lwsp, double *rwork, int *info);
+			const int *lwsp, double *rwork, int *info,size_t ,size_t );
 	void dsyev_(const char *job,const char *uplo, const int *K, double * dT, const int *L, double *eigs, double *dwsp, const int *ldwsp, int *info);
 	void zlarcm_(const int *K,const int *L,double *a,const int *M,void *cm,const int *ldcm,void *res,const int *ldres, double *dwsp);
 #endif
@@ -4221,7 +4221,7 @@ void cm_diag(mat_complx *m, complx *eigs, mat_complx *T)
 	}
 	T->basis = m->basis;
 
-	zgeev_("N","V",&dim,dum->data,&dim,&(eigs[1]),NULL,&ione,T->data,&dim,wsp,&lwsp,rwork,&info);
+	zgeev_("N","V",&dim,dum->data,&dim,&(eigs[1]),NULL,&ione,T->data,&dim,wsp,&lwsp,rwork,&info,1,1);
 
 	if ( info != 0) {
 		fprintf(stderr,"cm_diag error: diagonalization failed with the code '%d'\n", info);
